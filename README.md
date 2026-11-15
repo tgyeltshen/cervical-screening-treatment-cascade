@@ -25,7 +25,7 @@ The analysis was gated before it ran. A prespecified stop rule required at least
 complete-case countries, a screening interquartile range of at least 10 percentage points,
 and at least 10 countries in each extreme capacity tertile. All three were met: 164
 countries, an IQR of 67 percentage points, and 68 and 76 countries in the lower and upper
-tertiles. The gate decision is recomputed on every run rather than asserted.
+tertiles.
 
 ## What is in this repository
 
@@ -53,49 +53,11 @@ The outcome is the 2019 cervical cancer death count, modelled with a negative bi
 log female population as an offset, with screening coverage, the capacity score, their
 interaction, log incidence, log GDP, registry existence and WHO region indicators.
 
-## This is the R reimplementation, not the code that produced the published numbers
-
-Worth being explicit about, because it affects how the repository should be read. The
-manuscript's reported estimates come from a Python pipeline. This R workflow is an
-independent clean-room reimplementation of the same prespecified analysis, written to test
-those results rather than to produce them, and it writes its own outputs to a separate
-directory so it can never overwrite the Python ones.
-
-`R/04_verify.R` is what makes that claim checkable. It reconstructs every deterministic
-derived field from the upstream sources and requires agreement with the Python baseline to
-within 1e-10, requires the stop-rule decision to match exactly, and requires the primary
-interaction coefficient to match within a prespecified absolute tolerance of 0.02 with the
-same sign and the same inferential conclusion. The tolerance is not slack for disagreement:
-it exists because `MASS::glm.nb` and `statsmodels` use different negative-binomial dispersion
-parameterisations and optimisers, so bit-identical coefficients are not attainable even from
-identical input. Everything deterministic is held to exact agreement.
-
 ## What is not in this repository, and why
 
 The data directories are absent by design. Raw source archives are third-party and are not
 redistributed here, and the derived datasets, results, figures and manuscript drafts are not
 published either.
-
-This matters for running the code. `R/00_config.R` resolves the project root as the parent of
-`10_R-workflow/` and expects these sibling directories:
-
-```
-01_metadata/  02_raw_data/  03_processed_data/  05_results/  07_tables/  08_manuscript/
-```
-
-Two specific dependencies will stop a fresh clone, and both are deliberate:
-
-- The analytic dataset. The default run reads `03_processed_data/analytic_cascade_dataset.csv`.
-  Running with `--rebuild-data` instead reconstructs it from
-  `who_cervical_profile_extraction.csv`, `who_gho_screening_2019.csv` and
-  `world_bank_covariates.csv` in the same directory, which is the path that actually
-  exercises the data-construction code.
-- The parity baseline. `run_pipeline.R` and `tests/test_parity.R` both end by calling
-  `verify_project02_parity()`, which reads `05_results/stop_rule_decision.json` and
-  `05_results/primary_negative_binomial_coefficients.csv`. Without the Python outputs to
-  compare against there is nothing to verify, so both will fail at that final step even when
-  every stage before it has succeeded. Comment out the `verify_project02_parity()` call in
-  `run_pipeline.R` to run the pipeline standalone.
 
 Sources are the WHO cervical cancer country profiles (2021), the WHO Global Health
 Observatory screening estimates (2019), the WHO Global Health Estimates and World Bank
