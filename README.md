@@ -29,22 +29,18 @@ tertiles.
 
 ## What is in this repository
 
-Only the analysis code, under `10_R-workflow/`.
+Only the five analysis modules, under `10_R-workflow/R/`.
 
 ```
-10_R-workflow/
-  run_pipeline.R            single entry point: data, models, outputs, parity check
-  R/00_config.R             paths, seed, package assertions, shared utilities
-  R/01_data.R               source retrieval, parsing, deterministic construction of the
+10_R-workflow/R/
+  00_config.R               paths, seed, package assertions, shared utilities
+  01_data.R                 source retrieval, parsing, deterministic construction of the
                             analytic dataset and the derived capacity scores
-  R/02_models.R             prespecified stop rule, negative-binomial interaction model with
+  02_models.R               prespecified stop rule, negative-binomial interaction model with
                             HC3 robust covariance, marginal screening effects by capacity,
                             and propagation of WHO screening-estimate uncertainty
-  R/03_reporting.R          descriptive and regional tables, joint-distribution figure
-  R/04_verify.R             formal equivalence check against the Python baseline
-
-  DESCRIPTION               package dependencies
-  renv.lock                 exact package versions
+  03_reporting.R            descriptive and regional tables, joint-distribution figure
+  04_verify.R               formal equivalence check against the Python baseline
 ```
 
 The outcome is the 2019 cervical cancer death count, modelled with a negative binomial using
@@ -66,34 +62,39 @@ immutable and are never rewritten.
 
 ## Running it
 
-Install `renv` once from CRAN, then restore the exact package versions:
+These five files are the analysis modules themselves, not a runnable program. The pipeline
+entry point, the test runner and the executable workflow report are not published here, so no
+single command reproduces the study from this repository alone.
+
+The modules need `data.table`, `ggplot2`, `jsonlite`, `MASS` and `sandwich`:
 
 ```r
-install.packages("renv")
-renv::restore()
+install.packages(c("data.table", "ggplot2", "jsonlite", "MASS", "sandwich"))
 ```
 
-From the `10_R-workflow/` directory:
+`00_config.R` resolves the project root by walking up for a directory named `10_R-workflow`,
+and the modules source one another by the relative path `R/<file>.R`, so the layout above has
+to be preserved. From a `10_R-workflow/` directory they load in order:
 
-```bash
-Rscript run_pipeline.R
-Rscript tests/test_parity.R
-Rscript -e "rmarkdown::render('workflow.Rmd')"
+```r
+source(file.path("R", "00_config.R"))
+source(file.path("R", "01_data.R"))
+source(file.path("R", "02_models.R"))
+source(file.path("R", "03_reporting.R"))
+source(file.path("R", "04_verify.R"))
 ```
 
-On Windows, substitute the full path to `Rscript.exe`, for example
-`& 'C:\Program Files\R\R-4.6.0\bin\Rscript.exe' run_pipeline.R`.
+The analysis is then driven by `load_or_build_dataset()`, `fit_project02_models()`,
+`write_project02_outputs()` and `verify_project02_parity()`, in that order. Passing
+`rebuild = TRUE` to the first reconstructs the analytic dataset from the upstream extracts
+rather than reading the retained one, which is the path that exercises the data-construction
+code. Passing `run_uncertainty = TRUE` to `write_project02_outputs()` runs 200 draws
+propagating the WHO screening-estimate intervals, which carries measurement uncertainty in
+the exposure only and is not a full inferential interval. `make_project02_figures()` writes
+the joint screening and capacity distribution figure.
 
-The default run is fast. Three optional switches extend it:
-
-- `--rebuild-data` reconstructs the analytic dataset from the upstream extracts instead of
-  reading the retained one.
-- `--uncertainty` runs 200 draws propagating the WHO screening-estimate intervals. This
-  propagates measurement uncertainty in the exposure only and is not a full inferential
-  interval.
-- `--figures` writes the joint screening and capacity distribution figure.
-
-The seed is fixed in `R/00_config.R`, so the uncertainty run is reproducible.
+All of these expect the project data directories described above, which are not published
+here. The seed is fixed in `00_config.R`, so the uncertainty run is reproducible.
 
 ## Citation
 
