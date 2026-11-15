@@ -1,0 +1,19 @@
+Package: project02rworkflow
+Type: Project
+Title: R Reimplementation of Project 02 Cervical Screening Cascade
+Version: 1.0.0
+Authors@R: person("Tshewang", "Gyeltshen", role = c("aut", "cre"))
+Description: Reproducible R implementation and Python-output parity checks for
+    the active Project 02 scientific and data workflow.
+License: MIT
+Encoding: UTF-8
+Imports:
+    data.table,
+    ggplot2,
+    jsonlite,
+    knitr,
+    MASS,
+    rmarkdown,
+    sandwich
+Suggests:
+    pdftools
