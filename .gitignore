@@ -1,0 +1,37 @@
+# This repository publishes the analysis code only. The raw source archives are third-party
+# and their licences do not permit redistribution, so the data directories are absent by
+# design. Derived datasets, results, figures and manuscript drafts are not published here
+# either. Keep it that way.
+
+01_metadata/
+02_raw_data/
+03_processed_data/
+05_results/
+06_figures/
+07_tables/
+08_manuscript/
+09_logs/
+
+# R-generated outputs and the rendered workflow report both contain results.
+10_R-workflow/outputs/
+workflow.html
+*.html
+
+# renv restores the library from renv.lock; the library itself is not committed.
+renv/library/
+renv/staging/
+renv/local/
+renv/sandbox/
+.Rprofile
+
+# RStudio and R session state, which can carry local paths and command history.
+.Rproj.user/
+.Rhistory
+.Rapp.history
+.RData
+.Ruserdata
+*.Rcheck/
+.httr-oauth
+
+.DS_Store
+Thumbs.db
