@@ -42,11 +42,9 @@ Only the analysis code, under `10_R-workflow/`.
                             and propagation of WHO screening-estimate uncertainty
   R/03_reporting.R          descriptive and regional tables, joint-distribution figure
   R/04_verify.R             formal equivalence check against the Python baseline
-  tests/test_parity.R       base-R test runner, no testthat dependency
-  workflow.Rmd              executable explanation of the whole workflow
+
   DESCRIPTION               package dependencies
   renv.lock                 exact package versions
-  PYTHON_EQUIVALENCE.md     stage-by-stage map from the Python implementation to this one
 ```
 
 The outcome is the 2019 cervical cancer death count, modelled with a negative binomial using
